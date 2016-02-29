@@ -1,13 +1,19 @@
 /* You could also export multiple functions (or classes) from one file. */
 
-export function UpperFilter() {
+function UpperFilter() {
+	'use strict';
+
 	return function(input) {
 		return input.toUpperCase();
 	};
 }
 
-export function LowerFilter() {
+function LowerFilter() {
+	'use strict';
+
 	return function(input) {
 		return input.toLowerCase();
 	};
 }
+
+export {UpperFilter, LowerFilter};

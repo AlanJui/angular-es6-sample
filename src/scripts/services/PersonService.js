@@ -6,12 +6,16 @@ export default class PersonService {
 	  The below annotation will be processes by ngAnnotate, which
 	  will annotate the constructor after compiling for minification.
 	*/
-	/*@ngInject;*/
+
 	constructor($q) {
+		'ngInject';
+
 		this._$q = $q;
 	}
 
-	getPerson() {
-		return this._$q.when(new Person());
+	getPerson(paraName) {
+		let name = paraName || 'World';
+
+		return this._$q.when(new Person(name));
 	}
 }

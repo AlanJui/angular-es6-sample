@@ -4,11 +4,12 @@
 
 export default class Person {
 
-	constructor() {
+	constructor(name) {
+		this.name = name;
 	}
 
-	get name() {
-		return "World";
+	getName() {
+		return this.name;
 	}
 
 }

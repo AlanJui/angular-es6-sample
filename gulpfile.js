@@ -3,6 +3,7 @@ var babelify = require('babelify');
 var browserify = require('browserify');
 var vinylSourceStream = require('vinyl-source-stream');
 var vinylBuffer = require('vinyl-buffer');
+var through2 = require('through2');
 
 // Load all gulp plugins into the plugins object.
 var plugins = require('gulp-load-plugins')();
@@ -17,13 +18,14 @@ var src = {
 };
 
 var build = 'build/';
+
 var out = {
 	libs: build + 'libs/',
 	scripts: {
 		file: 'app.min.js',
 		folder: build + 'scripts/'
 	}
-}
+};
 
 gulp.task('html', function() {
 	return gulp.src(src.html)
@@ -49,6 +51,7 @@ gulp.task('libs', function() {
 
 /* Compile all script files into one output minified JS file. */
 gulp.task('scripts', ['jshint'], function() {
+//gulp.task('scripts', [], function() {
 
 	var sources = browserify({
 		entries: src.scripts.app,
@@ -66,7 +69,7 @@ gulp.task('scripts', ['jshint'], function() {
 			loadMaps: true // Load the sourcemaps browserify already generated
 		}))
 		.pipe(plugins.ngAnnotate())
-		.pipe(plugins.uglify())
+		//.pipe(plugins.uglify())
 		.pipe(plugins.sourcemaps.write('./', {
 			includeContent: true
 		}))
@@ -88,7 +91,7 @@ gulp.task('watch', function() {
 	gulp.watch(src.libs, ['libs']);
 	gulp.watch(src.html, ['html']);
 	gulp.watch(src.scripts.all, ['scripts']);
-})
+});
 
 gulp.task('build', ['scripts', 'html', 'libs']);
 gulp.task('default', ['serve']);

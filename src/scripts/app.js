@@ -4,11 +4,11 @@
 */
 
 import HomeController from './controllers/HomeController';
-import NameService from './services/PersonService';
+import PersonService from './services/PersonService';
 import {UpperFilter, LowerFilter} from './filters/textFilters';
 
 angular.module('myApp', [])
 	.controller('HomeController', HomeController)
-	.service('PersonService', NameService)
+	.service('PersonService', PersonService)
 	.filter('upper', UpperFilter)
 	.filter('lower', LowerFilter);
