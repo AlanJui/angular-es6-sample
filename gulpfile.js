@@ -49,18 +49,19 @@ gulp.task('libs', function() {
 		.pipe(plugins.connect.reload());
 });
 
+///////////////////////////////////////////////////////////////
+
 /* Compile all script files into one output minified JS file. */
-gulp.task('scripts', ['jshint'], function() {
-//gulp.task('scripts', [], function() {
+gulp.task('dev-scripts', ['jshint'], function() {
 
 	var sources = browserify({
 		entries: src.scripts.app,
 		debug: true // Build source maps
 	})
-	.transform(babelify.configure({
-		// You can configure babel here!
-		// https://babeljs.io/docs/usage/options/
-	}));
+		.transform(babelify.configure({
+			// You can configure babel here!
+			// https://babeljs.io/docs/usage/options/
+		}));
 
 	return sources.bundle()
 		.pipe(vinylSourceStream(out.scripts.file))
@@ -69,7 +70,6 @@ gulp.task('scripts', ['jshint'], function() {
 			loadMaps: true // Load the sourcemaps browserify already generated
 		}))
 		.pipe(plugins.ngAnnotate())
-		//.pipe(plugins.uglify())
 		.pipe(plugins.sourcemaps.write('./', {
 			includeContent: true
 		}))
@@ -78,7 +78,15 @@ gulp.task('scripts', ['jshint'], function() {
 
 });
 
-gulp.task('serve', ['build', 'watch'], function() {
+gulp.task('dev-build', ['dev-scripts', 'html', 'libs']);
+
+gulp.task('watch', function() {
+	gulp.watch(src.libs, ['libs']);
+	gulp.watch(src.html, ['html']);
+	gulp.watch(src.scripts.all, ['scripts']);
+});
+
+gulp.task('serve', ['dev-build', 'watch'], function() {
 	plugins.connect.server({
 		root: build,
 		port: 4242,
@@ -87,11 +95,46 @@ gulp.task('serve', ['build', 'watch'], function() {
 	});
 });
 
-gulp.task('watch', function() {
-	gulp.watch(src.libs, ['libs']);
-	gulp.watch(src.html, ['html']);
-	gulp.watch(src.scripts.all, ['scripts']);
+gulp.task('default', ['serve']);
+
+///////////////////////////////////////////////////////////////
+
+/* Build scripts for production */
+gulp.task('dist-scripts', ['jshint'], function() {
+
+	var sources = browserify({
+		entries: src.scripts.app,
+		debug: true // Build source maps
+	})
+		.transform(babelify.configure({
+			// You can configure babel here!
+			// https://babeljs.io/docs/usage/options/
+		}));
+
+	return sources.bundle()
+		.pipe(vinylSourceStream(out.scripts.file))
+		.pipe(vinylBuffer())
+		.pipe(plugins.sourcemaps.init({
+			loadMaps: true // Load the sourcemaps browserify already generated
+		}))
+		.pipe(plugins.ngAnnotate())
+		.pipe(plugins.uglify())
+		.pipe(plugins.sourcemaps.write('./', {
+			includeContent: true
+		}))
+		.pipe(gulp.dest(out.scripts.folder))
+		.pipe(plugins.connect.reload());
+
 });
 
-gulp.task('build', ['scripts', 'html', 'libs']);
-gulp.task('default', ['serve']);
+gulp.task('dist-build', ['dist-scripts', 'html', 'libs']);
+
+gulp.task('dist-serve', ['dist-build'], function() {
+	plugins.connect.server({
+		root: build,
+		port: 8080,
+		fallback: build + 'index.html'
+	});
+});
+
+gulp.task('dist', ['dist-serve']);
